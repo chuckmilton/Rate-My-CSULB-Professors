@@ -13,9 +13,18 @@
     },
     "content_scripts": [
       {
-        "matches": ["https://*.csulb.edu/*"],
+        "matches": [
+            "https://*.csulb.edu/*",
+            "https://csulb.collegescheduler.com/*"
+                    ],
         "js": ["content.js"],
         "css": ["content.css"]
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["images/rmp.svg", "emojis.json"],
+        "matches": ["<all_urls>"]
       }
     ]
   }

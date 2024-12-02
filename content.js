@@ -1,4 +1,15 @@
 console.log('Content script is running!');
+let currentTooltip = null; // Track the currently visible tooltip
+let emojis = {}; // Object to store the loaded emojis
+
+// Load emojis.json
+fetch(chrome.runtime.getURL('emojis.json'))
+  .then((response) => response.json())
+  .then((data) => {
+    emojis = data; // Store the emojis in memory
+    console.log('Emojis loaded:', emojis);
+  })
+  .catch((error) => console.error('Failed to load emojis.json:', error));
 
 // Function to request professor details from the background script
 function fetchProfessorDetails(name) {
@@ -18,48 +29,147 @@ function fetchProfessorDetails(name) {
 
 // Create a tooltip for detailed data
 function createTooltip(details) {
-    const tooltip = document.createElement('div');
-    tooltip.classList.add('tooltip');
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("prof-card"); // Use a base class for the professor card styling
+    const profileLink = details.profileLink || "#";
+    const departmentEmojis = emojis[details.department] || '';
   
-    tooltip.innerHTML = `
-      <div><strong>Rating:</strong> ${details.rating || "N/A"}</div>
-      <div><strong>Would Take Again:</strong> ${details.wouldTakeAgain || "N/A"}%</div>
-      <div><strong>Difficulty:</strong> ${details.difficulty || "N/A"}</div>
-      <div><strong>Comments:</strong></div>
-      <ul>
-        ${details.comments.slice(0, 3).map(comment => `<li>${comment}</li>`).join('') || "<li>No comments available</li>"}
-      </ul>
-      ${
-        details.profileLink
-          ? `<a href="${details.profileLink}" target="_blank">View Profile on Rate My Professors</a>`
-          : "<span>Profile not available</span>"
-      }
+    // Define emojis for different categories
+    const ratingEmoji = details.rating >= 4.0 ? "⭐" : details.rating >= 3.0 ? "👍" : "👎";
+    const difficultyEmoji = details.difficulty >= 4.0 ? "🔥" : details.difficulty >= 3.0 ? "😬" : "💡";
+    const wouldTakeAgainEmoji = details.wouldTakeAgain >= 75 ? "🎉" : details.wouldTakeAgain >= 50 ? "🙂" : "😞";
+  
+    // Color utility for ratings
+    const getRatingColor = (rating) =>
+        rating >= 4.0 ? "#7ff6c3" : rating >= 3.0 ? "#fff170" : "#ff9c9c";
+      
+      const getInverseRatingColor = (value) =>
+        value >= 0.75 ? "#7ff6c3" : value >= 0.5 ? "#fff170" : "#ff9c9c";
+      
+      const getDifficultyColor = (difficulty) =>
+        difficulty <= 2.0 ? "#7ff6c3" : difficulty <= 3.0 ? "#fff170" : "#ff9c9c";
+      
+  
+    // Create the Title Section
+    const titleSection = `
+      <div class="prof-card-name-and-logo">
+        <a href="${profileLink}" target="_blank" class="prof-card-rating-title">
+          ${details.professorName || "N/A"}
+        </a>
+        <img src="${chrome.runtime.getURL("images/rmp.svg")}" alt="Logo" class="prof-card-logo" />
+      </div>
+      <div class="prof-card-department">
+      ${details.department || 'Department not listed'} ${departmentEmojis}
+        </div>
     `;
   
-    tooltip.style.position = 'absolute';
-    tooltip.style.display = 'none';
-    tooltip.style.backgroundColor = '#333';
-    tooltip.style.color = '#fff';
-    tooltip.style.padding = '10px';
-    tooltip.style.borderRadius = '6px';
-    tooltip.style.fontSize = '14px';
-    tooltip.style.zIndex = '1000';
-    tooltip.style.maxWidth = '300px';
-    tooltip.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.2)';
-    document.body.appendChild(tooltip);
+    // Create the Main Info Section with color-coded backgrounds
+    const mainInfoSection = `
+  <div class="prof-card-main-info">
+    <div class="prof-card-detail">
+      <span class="prof-card-label">Rating:</span>
+      <span class="prof-card-value" style="background-color: ${getRatingColor(details.rating)};">
+        ${details.rating || "N/A"} ${ratingEmoji}
+      </span>
+    </div>
+    <div class="prof-card-detail">
+      <span class="prof-card-label">Review(s):</span>
+      <span class="prof-card-value" style="background-color: #f0f0f0;">
+        ${details.numRatings || 0}
+      </span>
+    </div>
+    <div class="prof-card-detail">
+      <span class="prof-card-label">Would Take Again:</span>
+      <span class="prof-card-value" style="background-color: ${getInverseRatingColor(details.wouldTakeAgain / 100)};">
+        ${details.wouldTakeAgain || "N/A"}% ${wouldTakeAgainEmoji}
+      </span>
+    </div>
+    <div class="prof-card-detail">
+      <span class="prof-card-label">Difficulty:</span>
+      <span class="prof-card-value" style="background-color: ${getDifficultyColor(details.difficulty)};">
+        ${details.difficulty || "N/A"} ${difficultyEmoji}
+      </span>
+    </div>
+  </div>
+`;
+
+
   
+    // Create the Tags Section
+    const tags = details.topTags
+      .slice(0, 5)
+      .map((tag) => `<span class="prof-card-tag-bubble">${tag.name} (${tag.count})</span>`)
+      .join("") || "No tags available";
+  
+    const tagsSection = `
+      <div class="prof-card-tags">${tags}</div>
+    `;
+  
+    // Create the Comments Section
+    const comments = details.comments
+      .slice(0, 3)
+      .map(
+        (comment) =>
+          `<div class="prof-card-review">
+            <div class="prof-card-review-header">
+              <div class="prof-card-review-course">${comment.class || "N/A"}</div>
+              <div class="prof-card-review-date">👍${comment.likes || 0} / 👎${comment.dislikes || 0}</div>
+            </div>
+            <div class="prof-card-review-comment">${comment.comment || "No comment"}</div>
+          </div>`
+      )
+      .join("") || "<div>No comments available</div>";
+  
+    const commentsSection = `
+      <div class="prof-card-comments">${comments}</div>
+    `;
+  
+    // Combine all sections into the tooltip
+    tooltip.innerHTML = `
+      ${titleSection}
+      <hr />
+      ${mainInfoSection}
+      <hr />
+      ${tagsSection}
+      <hr />
+      ${commentsSection}
+    `;
+  
+    tooltip.style.position = "absolute";
+    tooltip.style.backgroundColor = "#f5f5f5";
+    tooltip.style.padding = "15px";
+    tooltip.style.borderRadius = "10px";
+    tooltip.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.2)";
+    tooltip.style.zIndex = "1000";
+    tooltip.style.display = "none";
+    
+    tooltip.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+  
+    document.body.appendChild(tooltip);
     return tooltip;
   }
   
+  
+  
+  
   function processProfessorElements() {
     const professorElements = document.querySelectorAll('[id^="MTG_INSTR"]');
+    const schedulerProfessorElements =  document.querySelectorAll('td.css-1p12g40-cellCss-hideOnMobileCss span');
     console.log('Found professor elements:', professorElements);
+    console.log('Found professor elements (Scheduler):', schedulerProfessorElements);
   
-    professorElements.forEach(async (element) => {
-      if (element.querySelector('.rating-badge')) {
-        return;
-      }
-      const professorName = element.textContent.trim();
+     // Process elements from both sources
+     const allProfessorElements = [...professorElements, ...schedulerProfessorElements];
+
+     allProfessorElements.forEach(async (element) => {
+         if (element.querySelector('.rating-badge')) {
+             return; // Skip if badge already exists
+         }
+ 
+         const professorName = element.textContent.trim();
+ 
   
       // Skip invalid names
       if (!/^[a-zA-Z\s]+$/.test(professorName) || !professorName.includes(' ')) {
@@ -88,7 +198,7 @@ function createTooltip(details) {
         } else {
           ratingBadge.style.backgroundColor = '#d3d3d3'; // Default red for N/A or invalid
         }
-        ratingBadge.style.color = 'white';
+        ratingBadge.style.color = 'black';
         ratingBadge.style.padding = '2px 6px';
         ratingBadge.style.borderRadius = '4px';
         ratingBadge.style.marginLeft = '8px';
@@ -97,28 +207,32 @@ function createTooltip(details) {
         // Add a tooltip
         const tooltip = createTooltip(details);
   
-        ratingBadge.addEventListener('click', (event) => {
-          event.stopPropagation();
-          tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
-          tooltip.style.top = `${event.pageY + 10}px`;
-          tooltip.style.left = `${event.pageX + 10}px`;
-        });
-  
-        tooltip.addEventListener('click', (event) => {
-          event.stopPropagation(); // Prevent closing when clicking inside tooltip
-        });
-  
-        document.addEventListener('click', () => {
-          tooltip.style.display = 'none';
-        });
-  
-        // Append the badge to the professor element
-        element.appendChild(ratingBadge);
-      } catch (error) {
-        console.error(`Error fetching details for ${professorName}:`, error);
-      }
-    });
-  }
+        // Manage tooltip visibility
+      ratingBadge.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (currentTooltip && currentTooltip !== tooltip) {
+          currentTooltip.style.display = 'none';
+        }
+        tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+        tooltip.style.top = `${event.pageY + 10}px`;
+        tooltip.style.left = `${event.pageX + 10}px`;
+        currentTooltip = tooltip.style.display === 'block' ? tooltip : null;
+      });
+
+      // Global click to close tooltip
+      document.addEventListener('click', () => {
+        if (currentTooltip) {
+          currentTooltip.style.display = 'none';
+          currentTooltip = null;
+        }
+      });
+
+      element.appendChild(ratingBadge);
+    } catch (error) {
+      console.error(`Error fetching details for ${professorName}:`, error);
+    }
+  });
+}
   
   // Observe dynamic changes in the DOM
   let timeout;

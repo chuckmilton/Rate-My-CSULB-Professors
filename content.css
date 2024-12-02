@@ -16,4 +16,150 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
   }
+  .prof-card {
+    width: 380px;
+    font-family: Arial, sans-serif;
+    color: black;
+  }
+  
+  .prof-card-name-and-logo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .prof-card-logo {
+    width: 50px;
+    height: auto;
+  }
+  
+  .prof-card-rating-title {
+    text-decoration: none;
+    color: #000; /* Adjust the color */
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.prof-card-rating-title:hover {
+    text-decoration: underline;
+}
+
+  
+.prof-card-main-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the left */
+    gap: 8px; /* Add spacing between rows */
+}
+.prof-card-detail {
+display: flex;
+align-items: center; /* Align labels and values */
+}
+.prof-card-label {
+margin-right: 8px; /* Spacing between label and value */
+font-weight: bold;
+}
+
+.prof-card-value {
+    display: inline-block;
+    padding: 4px 8px; /* Add padding for squarish background */
+    border-radius: 4px; /* Rounded corners */
+    color: black; /* Text color */
+    font-weight: bold;
+}
+  
+.prof-card-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 5px;
+}
+
+.prof-card-tag-bubble {
+background-color: rgba(128, 128, 128, 0.25);
+border-radius: 15px;
+padding: 5px 10px;
+font-size: 12px;
+}
+
+.prof-card-comments {
+margin-top: 10px;
+}
+
+.prof-card-review {
+margin-bottom: 10px;
+}
+
+.prof-card-review-header {
+display: flex;
+justify-content: space-between;
+font-size: 14px;
+}
+
+.prof-card-review-comment {
+font-size: 14px;
+color: #555;
+margin-top: 5px;
+}
+.prof-card-rating-text {
+font-weight: bold;
+margin: 5px 0;
+}
+
+.prof-card-tag-bubble {
+background-color: rgba(128, 128, 128, 0.25);
+border-radius: 20px;
+padding: 5px;
+margin: 3px;
+font-size: 12px;
+}
+
+.prof-card-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 5px;
+margin-top: 10px;
+}
+
+.prof-card-review-header {
+display: flex;
+justify-content: space-between;
+font-weight: bold;
+margin-bottom: 5px;
+}
+
+.prof-card-review-comment {
+margin-left: 5px;
+font-style: italic;
+color: #333;
+}
+
+.prof-card-comments {
+margin-top: 15px;
+padding-top: 10px;
+border-top: 1px solid #ccc;
+}
+
+.prof-card-name-and-logo a {
+font-size: 18px;
+text-decoration: none;
+}
+
+.prof-card-name-and-logo a:hover {
+text-decoration: underline;
+}
+.prof-card-badge {
+display: inline-block;
+padding: 5px 10px;
+margin: 5px 0;
+border-radius: 4px;
+font-size: 14px;
+font-weight: bold;
+color: black;
+text-align: center;
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+  
   

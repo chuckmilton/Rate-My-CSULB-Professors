@@ -1,8 +1,8 @@
 import LRUCache from './lrucache.js';
 
 const cache = new LRUCache(100); // Cache with a limit of 100 entries
-const proxyURL = process.env.PROXY_URL; // Proxy server URL
-const CSULB_SCHOOL_ID = process.env.CSULB_SCHOOL_ID; // CSULB legacyId
+const proxyURL = "http://localhost:3000/graphql"; // Proxy server URL
+const CSULB_SCHOOL_ID = "U2Nob29sLTE4ODQ2"; // CSULB legacyId
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'fetchProfessorDetails') {
@@ -119,28 +119,38 @@ function jaroWinkler(s1, s2) {
 
 // Fetch professor details from proxy server
 async function fetchProfessorDetails(name) {
-  try {
-    const nameParts = name.trim().split(/\s+/);
-    const lastName = nameParts.pop(); // Extract the last name
-    const firstName = nameParts.join(' '); // Join remaining parts as the first name
-
-    const query = {
-      query: `
-        query {
-          newSearch {
-            teachers(query: { text: "${name}", schoolID: "${CSULB_SCHOOL_ID}" }) {
-              edges {
-                node {
-                  firstName
-                  lastName
-                  avgRating
-                  avgDifficulty
-                  wouldTakeAgainPercent
-                  legacyId
-                  ratings {
-                    edges {
-                      node {
-                        comment
+    try {
+      const nameParts = name.trim().split(/\s+/);
+      const lastName = nameParts.pop(); // Extract the last name
+      const firstName = nameParts.join(' '); // Join remaining parts as the first name
+  
+      const query = {
+        query: `
+          query {
+            newSearch {
+              teachers(query: { text: "${name}", schoolID: "${CSULB_SCHOOL_ID}" }) {
+                edges {
+                  node {
+                    firstName
+                    lastName
+                    department
+                    avgRating
+                    avgDifficulty
+                    numRatings
+                    wouldTakeAgainPercent
+                    legacyId
+                    teacherRatingTags {
+                      tagName
+                      tagCount
+                    }
+                    ratings {
+                      edges {
+                        node {
+                          comment
+                          class
+                          thumbsUpTotal
+                          thumbsDownTotal
+                        }
                       }
                     }
                   }
@@ -148,71 +158,98 @@ async function fetchProfessorDetails(name) {
               }
             }
           }
-        }
-      `,
-    };
-
-    const response = await fetch(proxyURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(query),
-    });
-
-    const data = await response.json();
-    const edges = data?.data?.newSearch?.teachers?.edges;
-
-    if (!edges || edges.length === 0) {
+        `,
+      };
+  
+      const response = await fetch(proxyURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(query),
+      });
+  
+      const data = await response.json();
+      const edges = data?.data?.newSearch?.teachers?.edges;
+  
+      if (!edges || edges.length === 0) {
+        return {
+          professorName: "N/A",
+          department: "N/A",
+          rating: "N/A",
+          difficulty: "N/A",
+          wouldTakeAgain: "N/A",
+          numRatings: 0,
+          topTags: [],
+          comments: [],
+          profileLink: null,
+        };
+      }
+  
+      const matchedProfessor = edges.find((edge) => {
+        const professor = edge.node;
+        const professorFirstName = professor.firstName.toLowerCase();
+        const normalizedFirstName = firstName.toLowerCase();
+        return (
+          professor.lastName.toLowerCase() === lastName.toLowerCase() &&
+          (professorFirstName === normalizedFirstName ||
+            areFirstNamesSimilar(professorFirstName, normalizedFirstName))
+        );
+      });
+  
+      if (matchedProfessor) {
+        const professor = matchedProfessor.node;
+  
+        const comments = professor.ratings.edges.map((rating) => ({
+          comment: rating.node.comment,
+          class: rating.node.class,
+          likes: rating.node.thumbsUpTotal,
+          dislikes: rating.node.thumbsDownTotal,
+        }));
+  
+        const profileLink = `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${professor.legacyId}`;
+        const topTags = professor.teacherRatingTags.map((tag) => ({
+          name: tag.tagName,
+          count: tag.tagCount,
+        }));
+  
+        return {
+          professorName: `${professor.firstName} ${professor.lastName}`,
+          department: professor.department || "N/A",
+          rating: professor.avgRating || "N/A",
+          difficulty: professor.avgDifficulty || "N/A",
+          wouldTakeAgain: professor.wouldTakeAgainPercent || "N/A",
+          numRatings: professor.numRatings || 0,
+          topTags,
+          comments,
+          profileLink,
+        };
+      }
+  
       return {
+        professorName: "N/A",
+        department: "N/A",
         rating: "N/A",
         difficulty: "N/A",
         wouldTakeAgain: "N/A",
+        numRatings: 0,
+        topTags: [],
+        comments: [],
+        profileLink: null,
+      };
+    } catch (error) {
+      console.error(`Error in fetchProfessorDetails:`, error);
+      return {
+        professorName: "N/A",
+        department: "N/A",
+        rating: "N/A",
+        difficulty: "N/A",
+        wouldTakeAgain: "N/A",
+        numRatings: 0,
+        topTags: [],
         comments: [],
         profileLink: null,
       };
     }
-
-    // Exact match or close match based on first name similarity
-    const matchedProfessor = edges.find((edge) => {
-      const professor = edge.node;
-      const professorFirstName = professor.firstName.toLowerCase();
-      const normalizedFirstName = firstName.toLowerCase();
-      return (
-        professor.lastName.toLowerCase() === lastName.toLowerCase() &&
-        (professorFirstName === normalizedFirstName ||
-          areFirstNamesSimilar(professorFirstName, normalizedFirstName))
-      );
-    });
-
-    if (matchedProfessor) {
-      const professor = matchedProfessor.node;
-      const comments = professor.ratings.edges.map((rating) => rating.node.comment);
-      const profileLink = `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${professor.legacyId}`;
-
-      return {
-        rating: professor.avgRating || "N/A",
-        difficulty: professor.avgDifficulty || "N/A",
-        wouldTakeAgain: professor.wouldTakeAgainPercent || "N/A",
-        comments,
-        profileLink,
-      };
-    }
-
-    return {
-      rating: "N/A",
-      difficulty: "N/A",
-      wouldTakeAgain: "N/A",
-      comments: [],
-      profileLink: null,
-    };
-  } catch (error) {
-    console.error(`Error in fetchProfessorDetails:`, error);
-    return {
-      rating: "N/A",
-      difficulty: "N/A",
-      wouldTakeAgain: "N/A",
-      comments: [],
-      profileLink: null,
-    };
   }
-}
+  
+  
 
