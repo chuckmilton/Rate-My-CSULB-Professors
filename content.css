@@ -193,3 +193,74 @@ box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 .custom-prof-card-body p {
   margin: 5px 0;
 }
+
+/* Course Filter Dropdown */
+.course-filter {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.course-filter label {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.course-filter select {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+/* Navigation Buttons Container */
+.comment-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* Navigation Buttons */
+.comment-navigation button {
+  background-color: black; /* Updated to Black */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+}
+
+.comment-navigation button:hover:not(:disabled) {
+  background-color: #333333; /* Darker shade for hover */
+}
+
+.comment-navigation button:disabled {
+  background-color: #cccccc; /* Gray background for disabled state */
+  cursor: not-allowed;
+}
+
+/* Comment Counter */
+.comment-counter {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #555;
+}
+
+/* Fade-in and Fade-out Transitions for Comments */
+.prof-card-review-comment.fade-out {
+  opacity: 0;
+}
+
+.prof-card-review-comment.fade-in {
+  opacity: 1;
+}
+
+/* Transition for Fade Effects */
+.prof-card-review-comment {
+  transition: opacity 0.3s ease-in-out;
+}

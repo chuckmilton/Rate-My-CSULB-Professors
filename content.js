@@ -50,7 +50,13 @@ function areLastNamesSimilar(lastName1, lastName2) {
   return false;
 }
 
-// Create a tooltip for detailed data
+// Placeholder for areNamesSimilar function
+function areNamesSimilar(name1, name2) {
+  // Implement your similarity logic here
+  return name1.toLowerCase() === name2.toLowerCase();
+}
+
+// Function to create a tooltip for detailed data
 function createTooltip(details) {
   const tooltip = document.createElement('div');
   tooltip.classList.add('prof-card'); // Base class for styling
@@ -153,27 +159,8 @@ function createTooltip(details) {
       <div class="prof-card-tags">${tags}</div>
     `;
 
-    // Create the Comments Section
-    const comments =
-      details.comments
-        .slice(0, 3)
-        .map(
-          (comment) =>
-            `<div class="prof-card-review">
-              <div class="prof-card-review-header">
-                <div class="prof-card-review-course">${comment.class || 'N/A'}</div>
-                <div class="prof-card-review-date">👍${comment.likes || 0} / 👎${
-              comment.dislikes || 0
-            }</div>
-              </div>
-              <div class="prof-card-review-comment">${comment.comment || 'No comment'}</div>
-            </div>`
-        )
-        .join('') || '<div>No comments available</div>';
-
-    const commentsSection = `
-      <div class="prof-card-comments">${comments}</div>
-    `;
+    // Create the Comments Section with Navigation and Filtering
+    const commentsSection = createCommentsSection(details.comments);
 
     // Combine all sections into the tooltip
     tooltip.innerHTML = `
@@ -210,6 +197,75 @@ function createTooltip(details) {
   return tooltip;
 }
 
+// Function to create the comments section with navigation and filtering
+function createCommentsSection(comments) {
+  // If there are no comments, display a default message
+  if (!comments || comments.length === 0) {
+    return `<div class="prof-card-comments"><div>No comments available</div></div>`;
+  }
+
+  // Extract unique courses from comments
+  const uniqueCourses = Array.from(new Set(comments.map(comment => comment.class).filter(Boolean)));
+
+  // Initialize state for comment navigation and filtering
+  let filteredComments = comments.slice(); // Clone the comments array
+  let currentCommentIndex = 0;
+
+  // Function to render the current comment
+  const renderComment = (index) => {
+    const comment = filteredComments[index];
+    return `
+      <div class="prof-card-review">
+        <div class="prof-card-review-header">
+          <div class="prof-card-review-course">${comment.class || 'N/A'}</div>
+          <div class="prof-card-review-date">👍${comment.likes || 0} / 👎${comment.dislikes || 0}</div>
+        </div>
+        <div class="prof-card-review-comment">${comment.comment || 'No comment'}</div>
+      </div>
+    `;
+  };
+
+  // Function to render the course filter dropdown
+  const renderCourseFilter = () => {
+    if (uniqueCourses.length <= 1) return ''; // No need for filter if only one or zero courses
+
+    const options = uniqueCourses.map(course => `<option value="${course}">${course}</option>`).join('');
+    return `
+      <div class="course-filter">
+        <label for="course-select">Filter by Course:</label>
+        <select id="course-select">
+          <option value="All">All</option>
+          ${options}
+        </select>
+      </div>
+    `;
+  };
+
+  // Create the initial comment display
+  let commentsHTML = renderComment(currentCommentIndex);
+
+  // If there's more than one comment, add navigation buttons and counter
+  if (filteredComments.length > 1) {
+    commentsHTML += `
+      <div class="comment-navigation">
+        <button class="prev-comment" aria-label="Previous Comment">Previous</button>
+        <button class="next-comment" aria-label="Next Comment">Next</button>
+      </div>
+      <div class="comment-counter">${currentCommentIndex + 1} of ${filteredComments.length}</div>
+    `;
+  }
+
+  // Create the course filter dropdown
+  const courseFilterHTML = renderCourseFilter();
+
+  // Return the complete comments section with filtering
+  return `
+    <div class="prof-card-comments">
+      ${courseFilterHTML}
+      ${commentsHTML}
+    </div>
+  `;
+}
 
 // Function to handle fetching and displaying professor details
 async function handleProfessorDetails(element, name) {
@@ -259,6 +315,11 @@ async function handleProfessorDetails(element, name) {
       tooltip.style.top = `${event.pageY + 10}px`;
       tooltip.style.left = `${event.pageX + 10}px`;
       currentTooltip = tooltip.style.display === 'block' ? tooltip : null;
+
+      // If the tooltip has navigation buttons, attach event listeners
+      if (details.comments && details.comments.length > 1) {
+        attachCommentNavigation(tooltip, details.comments);
+      }
     });
 
     element.appendChild(ratingBadge);
@@ -272,6 +333,134 @@ async function handleProfessorDetails(element, name) {
     thinkingEmoji.textContent = '⚠️'; // Warning emoji
     thinkingEmoji.style.color = 'red'; // Optional: Change color to red
   }
+}
+
+// Function to attach navigation event listeners to the tooltip
+function attachCommentNavigation(tooltip, comments) {
+  const nextButton = tooltip.querySelector('.next-comment');
+  const prevButton = tooltip.querySelector('.prev-comment');
+  const commentCounter = tooltip.querySelector('.comment-counter');
+  const courseSelect = tooltip.querySelector('#course-select');
+
+  if (!nextButton || !prevButton || !commentCounter) return; // Ensure navigation buttons and counter exist
+
+  let filteredComments = comments.slice(); // Clone the comments array
+  let currentCommentIndex = 0;
+
+  // If courseSelect exists, handle filtering
+  if (courseSelect) {
+    // Extract unique courses from comments
+    const uniqueCourses = Array.from(new Set(comments.map(comment => comment.class).filter(Boolean)));
+
+    // Function to handle course filtering
+    const handleCourseFilter = () => {
+      const selectedCourse = courseSelect.value;
+      if (selectedCourse === 'All') {
+        filteredComments = comments.slice();
+      } else {
+        filteredComments = comments.filter(comment => comment.class === selectedCourse);
+      }
+      currentCommentIndex = 0;
+      renderFilteredComments();
+    };
+
+    // Event listener for Course Filter dropdown
+    courseSelect.addEventListener('change', handleCourseFilter);
+  }
+
+  // Function to update the displayed comment
+  const updateComment = (newIndex) => {
+    if (newIndex < 0 || newIndex >= filteredComments.length) return;
+    currentCommentIndex = newIndex;
+    const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
+    const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
+    const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+
+    // Update comment text
+    const currentComment = filteredComments[currentCommentIndex];
+    if (commentContainer) {
+      commentContainer.textContent = currentComment.comment || 'No comment';
+    }
+
+    // Update course and likes/dislikes
+    if (courseContainer && likesDislikesContainer) {
+      courseContainer.textContent = currentComment.class || 'N/A';
+      likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+    }
+
+    // Update comment counter
+    commentCounter.textContent = `${currentCommentIndex + 1} of ${filteredComments.length}`;
+
+    // Disable/Enable buttons based on current index
+    prevButton.disabled = currentCommentIndex === 0;
+    nextButton.disabled = currentCommentIndex === filteredComments.length - 1;
+  };
+
+  // Function to render comments based on filtering
+  const renderFilteredComments = () => {
+    if (filteredComments.length === 0) {
+      const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
+      const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
+      const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+      const commentCounter = tooltip.querySelector('.comment-counter');
+
+      if (commentContainer) {
+        commentContainer.textContent = 'No comments available for the selected course.';
+      }
+      if (courseContainer) {
+        courseContainer.textContent = '';
+      }
+      if (likesDislikesContainer) {
+        likesDislikesContainer.textContent = '';
+      }
+      if (commentCounter) {
+        commentCounter.textContent = '0 of 0';
+      }
+      prevButton.disabled = true;
+      nextButton.disabled = true;
+      return;
+    }
+
+    // Update the first comment
+    const currentComment = filteredComments[currentCommentIndex];
+    const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
+    const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
+    const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+
+    if (commentContainer) {
+      commentContainer.textContent = currentComment.comment || 'No comment';
+    }
+    if (courseContainer) {
+      courseContainer.textContent = currentComment.class || 'N/A';
+    }
+    if (likesDislikesContainer) {
+      likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+    }
+    if (commentCounter) {
+      commentCounter.textContent = `${currentCommentIndex + 1} of ${filteredComments.length}`;
+    }
+
+    // Enable or disable buttons based on current index
+    prevButton.disabled = currentCommentIndex === 0;
+    nextButton.disabled = currentCommentIndex === filteredComments.length - 1;
+  };
+
+  // Event listener for Next button
+  nextButton.addEventListener('click', () => {
+    if (currentCommentIndex < filteredComments.length - 1) {
+      updateComment(currentCommentIndex + 1);
+    }
+  });
+
+  // Event listener for Previous button
+  prevButton.addEventListener('click', () => {
+    if (currentCommentIndex > 0) {
+      updateComment(currentCommentIndex - 1);
+    }
+  });
+
+  // Initial rendering
+  renderFilteredComments();
 }
 
 // Main function to process professor elements based on the current site
