@@ -5,6 +5,8 @@
     border-radius: 3px;
     font-size: 0.9em;
     cursor: pointer;
+    transition: opacity 0.5s ease-in-out 0.1s;
+    opacity: 0;
   }
   
   .tooltip {
@@ -159,7 +161,35 @@ color: black;
 text-align: center;
 box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-
   
-  
+.custom-prof-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.csulb-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.frustrated-shark {
+  width: 70px; /* Adjust size as needed */
+  height: 70px;
+}
+
+.custom-prof-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.custom-prof-card-body {
+  margin-top: 10px;
+}
+
+.custom-prof-card-body p {
+  margin: 5px 0;
+}

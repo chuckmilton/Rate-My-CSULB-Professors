@@ -23,7 +23,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["images/rmp.svg", "emojis.json"],
+        "resources": ["images/rmp.svg", "emojis.json", "images/*.png"],
         "matches": ["<all_urls>"]
       }
     ]

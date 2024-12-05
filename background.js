@@ -103,7 +103,6 @@ function normalizedLevenshtein(a, b) {
 }
 
 // Improved Name Similarity Check
-// Improved Name Similarity Check
 function areNamesSimilar(name1, name2) {
   const jaroScore = jaroWinkler(name1, name2);
   const levScore = normalizedLevenshtein(name1, name2);
@@ -123,7 +122,6 @@ function areNamesSimilar(name1, name2) {
 }
 
 
-// Function to clean the professor's name
 // Function to clean the professor's name
 function cleanProfessorName(name) {
   let cleanName = name;
@@ -279,11 +277,11 @@ async function fetchProfessorDetails(name) {
       for (let { firstName: normalizedFirstName, lastName: normalizedLastName } of nameCombinations) {
         
         // Check for "Dr" prefix match
-        const isStrictLastNameMatch = normalizedFirstName.toLowerCase() === "dr" &&
+      const isStrictLastNameMatch = normalizedFirstName.toLowerCase() === "dr" &&
       areNamesSimilar(profLastName, normalizedLastName);
 
     // General matching logic
-    const isFirstNameMatch =
+      const isFirstNameMatch =
       (normalizedFirstName.length === 1 // Check if the input is an initial
         ? profFirstName.startsWith(normalizedFirstName) // Initial matches the start of the full name
         : areNamesSimilar(profFirstName, normalizedFirstName)) || // Full names are similar
@@ -341,7 +339,7 @@ async function fetchProfessorDetails(name) {
         dislikes: rating.node.thumbsDownTotal,
       }));
 
-      const profileLink = `https://www.ratemyprofessors.com/ShowRatings.jsp?tid=${professor.legacyId}`;
+      const profileLink = `https://www.ratemyprofessors.com/professor/${professor.legacyId}`;
       const topTags = professor.teacherRatingTags.map((tag) => ({
         name: tag.tagName,
         count: tag.tagCount,
