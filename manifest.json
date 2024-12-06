@@ -3,7 +3,7 @@
     "name": "Rate My CSULB Professors",
     "version": "1.0",
     "description": "Display RateMyProfessors ratings for professors at CSULB.",
-    "permissions": ["storage"],
+    "permissions": [],
     "host_permissions": [
       "https://rate-my-csulb-professors.vercel.app/*",
       "https://www.ratemyprofessors.com/graphql"
