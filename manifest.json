@@ -3,8 +3,9 @@
     "name": "Rate My CSULB Professors",
     "version": "1.0",
     "description": "Display RateMyProfessors ratings for professors at CSULB.",
-    "permissions": ["storage", "activeTab", "scripting"],
+    "permissions": ["storage"],
     "host_permissions": [
+      "https://rate-my-csulb-professors.vercel.app/*",
       "https://www.ratemyprofessors.com/graphql"
     ],
     "background": {
@@ -24,7 +25,7 @@
     "web_accessible_resources": [
       {
         "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json"],
-        "matches": ["<all_urls>"]
+        "matches": ["https://*.csulb.edu/*", "https://csulb.collegescheduler.com/*"]
       }
     ],
     "icons": {
