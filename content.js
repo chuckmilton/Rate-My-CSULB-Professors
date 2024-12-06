@@ -269,7 +269,7 @@ function createCommentsSection(comments) {
 async function handleProfessorDetails(element, name) {
   // Add a thinking emoji as a placeholder
   const thinkingEmoji = document.createElement('span');
-  thinkingEmoji.textContent = '🤔'; // Thinking emoji
+  thinkingEmoji.textContent = '⏳'; // Thinking emoji
   thinkingEmoji.style.marginLeft = '8px';
   thinkingEmoji.style.opacity = '0.7'; // Slight transparency to indicate "loading"
   element.appendChild(thinkingEmoji);
