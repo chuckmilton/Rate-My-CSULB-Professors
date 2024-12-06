@@ -6,10 +6,10 @@ dotenv.config();
 const AUTHORIZATION_TOKEN = process.env.AUTHORIZATION_TOKEN;
 
 export default async function handler(req, res) {
-  // Set CORS headers for the Chrome extension
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Set CORS headers
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*"); // Allow all origins or dynamically set
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
