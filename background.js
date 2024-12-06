@@ -1,7 +1,7 @@
 import LRUCache from './lrucache.js';
 
 const cache = new LRUCache(100); // Cache with a limit of 100 entries
-const proxyURL = "http://localhost:3000/graphql"; // Proxy server URL
+const proxyURL = "https://rate-my-csulb-professors.vercel.app/api/graphql"; // Proxy server URL
 const CSULB_SCHOOL_ID = "U2Nob29sLTE4ODQ2"; // CSULB legacyId
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
