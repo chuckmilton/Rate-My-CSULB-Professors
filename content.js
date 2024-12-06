@@ -1,5 +1,6 @@
 let currentTooltip = null; // Track the currently visible tooltip
 let emojis = {}; // Object to store the loaded emojis
+let nameMappings = {}; // Object to store the name mappings
 
 // Load emojis.json
 fetch(chrome.runtime.getURL('emojis.json'))
@@ -8,6 +9,14 @@ fetch(chrome.runtime.getURL('emojis.json'))
     emojis = data; // Store the emojis in memory
   })
   .catch((error) => console.error('Failed to load emojis.json:', error));
+
+// Load nameMappings.json
+fetch(chrome.runtime.getURL('nameMappings.json'))
+  .then((response) => response.json())
+  .then((data) => {
+    nameMappings = data; // Store the name mappings in memory
+  })
+  .catch((error) => console.error('Failed to load nameMappings.json:', error));
 
 // Function to request professor details from the background script
 function fetchProfessorDetails(name) {
@@ -267,6 +276,9 @@ function createCommentsSection(comments) {
 
 // Function to handle fetching and displaying professor details
 async function handleProfessorDetails(element, name) {
+  // Determine the name to use (mapped name if exists)
+  const mappedName = nameMappings[name] || name;
+
   // Add a thinking emoji as a placeholder
   const thinkingEmoji = document.createElement('span');
   thinkingEmoji.textContent = '⏳'; // Thinking emoji
@@ -275,7 +287,7 @@ async function handleProfessorDetails(element, name) {
   element.appendChild(thinkingEmoji);
 
   try {
-    const details = await fetchProfessorDetails(name);
+    const details = await fetchProfessorDetails(mappedName);
     thinkingEmoji.remove();
 
     // Create a rating badge for each professor
