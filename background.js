@@ -10,13 +10,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Check cache first
     if (cache.get(professorName)) {
-      console.log(`Cache hit for ${professorName}`);
       sendResponse({ success: true, details: cache.get(professorName) });
       return;
     }
-
-    console.log(`Cache miss for ${professorName}, querying API...`);
-
     fetchProfessorDetails(professorName)
       .then((details) => {
         cache.set(professorName, details); // Cache the result

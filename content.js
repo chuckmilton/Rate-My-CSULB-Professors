@@ -1,4 +1,3 @@
-console.log('Content script is running!');
 let currentTooltip = null; // Track the currently visible tooltip
 let emojis = {}; // Object to store the loaded emojis
 
@@ -7,7 +6,6 @@ fetch(chrome.runtime.getURL('emojis.json'))
   .then((response) => response.json())
   .then((data) => {
     emojis = data; // Store the emojis in memory
-    console.log('Emojis loaded:', emojis);
   })
   .catch((error) => console.error('Failed to load emojis.json:', error));
 
@@ -467,14 +465,11 @@ function attachCommentNavigation(tooltip, comments) {
 function processProfessorElements() {
   // Detect current website using the hostname
   const currentSite = window.location.hostname;
-  console.log(`Current site detected: ${currentSite}`);
 
   // Define site-specific processing
   if (currentSite.includes('csulb.collegescheduler.com')) {
-    console.log('Processing CSULB Scheduler site...');
     processSchedulerSite();
   } else {
-    console.log('Processing other site...');
     processOtherSite();
   }
 }
@@ -484,7 +479,6 @@ function processSchedulerSite() {
   const schedulerProfessorElements = document.querySelectorAll(
     'td.css-1p12g40-cellCss-hideOnMobileCss'
   );
-  console.log('Found professor elements (Scheduler):', schedulerProfessorElements);
 
   // Define weekdays and abbreviations to skip
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -499,7 +493,6 @@ function processSchedulerSite() {
     const containsWeekday = Array.from(element.querySelectorAll('span')).some((span) => {
       const ariaLabel = span.getAttribute('aria-label')?.toLowerCase();
       const textContent = span.textContent.trim();
-      console.log(`ariaLabel: ${ariaLabel}, textContent: ${textContent}`);
       return (
         weekdays.some((day) => day.toLowerCase() === ariaLabel) || // Full weekday names
         abbreviations.includes(textContent) // Abbreviations
@@ -507,7 +500,6 @@ function processSchedulerSite() {
     });
 
     if (containsWeekday) {
-      console.log(`Skipping element due to weekday content:`, element);
       return;
     }
 
@@ -518,12 +510,10 @@ function processSchedulerSite() {
       .filter((name) => /^[a-zA-Z\s\-\.']+$/.test(name)); // Validate names
 
     if (professorNames.length === 0) {
-      console.log('No valid professor names found in element:', element);
       return;
     }
 
     for (const name of professorNames) {
-      console.log(`Fetching details for: ${name}`);
       await handleProfessorDetails(element, name);
     }
   });
@@ -532,7 +522,6 @@ function processSchedulerSite() {
 // Function to process the other site
 function processOtherSite() {
   const professorElements = document.querySelectorAll('[id^="MTG_INSTR"]');
-  console.log('Found professor elements:', professorElements);
 
   // Define weekdays and abbreviations to skip (if applicable)
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -547,7 +536,6 @@ function processOtherSite() {
     const containsWeekday = Array.from(element.querySelectorAll('span')).some((span) => {
       const ariaLabel = span.getAttribute('aria-label')?.toLowerCase();
       const textContent = span.textContent.trim();
-      console.log(`ariaLabel: ${ariaLabel}, textContent: ${textContent}`);
       return (
         weekdays.some((day) => day.toLowerCase() === ariaLabel) || // Full weekday names
         abbreviations.includes(textContent) // Abbreviations
@@ -555,7 +543,6 @@ function processOtherSite() {
     });
 
     if (containsWeekday) {
-      console.log(`Skipping element due to weekday content:`, element);
       return;
     }
 
@@ -563,13 +550,11 @@ function processOtherSite() {
 
     // Skip invalid names containing "To be Announced" or "TBA"
     if (/^\s*(To be Announced|TBA)\s*$/i.test(professorName)) {
-      console.log(`Skipping placeholder name: ${professorName}`);
       return;
     }
 
     // Updated regex to allow hyphens, periods, and apostrophes
     if (!/^[a-zA-Z\s,\-\.']+$/.test(professorName)) {
-      console.log(`Skipping invalid name: ${professorName}`);
       return;
     }
 
@@ -577,7 +562,6 @@ function processOtherSite() {
     const namesArray = professorName.split(/\s*,\s*/); // Split by commas and trim spaces
 
     for (const name of namesArray) {
-      console.log(`Fetching details for: ${name}`);
       await handleProfessorDetails(element, name);
     }
   });
@@ -596,7 +580,6 @@ let timeout;
 const observer = new MutationObserver(() => {
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(() => {
-    console.log('DOM mutated. Checking for new professor elements...');
     processProfessorElements();
   }, 700);
 });
@@ -606,6 +589,5 @@ observer.observe(document.body, { childList: true, subtree: true });
 
 // Initial processing
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Content script loaded and running!');
   processProfessorElements();
 });
