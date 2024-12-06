@@ -18,6 +18,11 @@ fetch(chrome.runtime.getURL('nameMappings.json'))
   })
   .catch((error) => console.error('Failed to load nameMappings.json:', error));
 
+  function cleanExtractedName(name) {
+    return name.replace(/\bTo be Announced\b/gi, '').trim();
+  }
+  
+
 // Function to request professor details from the background script
 function fetchProfessorDetails(name) {
   return new Promise((resolve, reject) => {
@@ -277,7 +282,7 @@ function createCommentsSection(comments) {
 // Function to handle fetching and displaying professor details
 async function handleProfessorDetails(element, name) {
   // Determine the name to use (mapped name if exists)
-  const mappedName = nameMappings[name] || name;
+  const mappedName = nameMappings[cleanExtractedName(name)] || name;
 
   // Add a thinking emoji as a placeholder
   const thinkingEmoji = document.createElement('span');
