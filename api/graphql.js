@@ -1,13 +1,9 @@
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import NodeCache from "node-cache";
 
 dotenv.config();
 
 const AUTHORIZATION_TOKEN = process.env.AUTHORIZATION_TOKEN;
-
-// Initialize cache: 1-hour TTL and max 2,000 professors
-const cache = new NodeCache({ stdTTL: 3600, checkperiod: 600, maxKeys: 2000 });
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -25,19 +21,6 @@ export default async function handler(req, res) {
     try {
       const { query } = req.body;
 
-      // Use the query string as the cache key
-      const cacheKey = JSON.stringify(query).replace(/\s+/g, ' ').trim();
-
-      // Check if data exists in cache
-      const cachedData = cache.get(cacheKey);
-      if (cachedData) {
-        console.log("Cache hit:", cacheKey);
-        return res.status(200).json(cachedData);
-      }
-
-      console.log("Cache miss:", cacheKey);
-
-      // If no cache, fetch from API
       const response = await fetch("https://www.ratemyprofessors.com/graphql", {
         method: "POST",
         headers: {
@@ -55,11 +38,7 @@ export default async function handler(req, res) {
       }
 
       const data = await response.json();
-
-      // Cache the result for future use
-      cache.set(cacheKey, data);
-
-      res.status(200).json(data);
+      res.json(data);
     } catch (error) {
       console.error("Error fetching data:", error);
       res.status(500).json({ error: error.message });
