@@ -515,8 +515,8 @@ function processSchedulerSite() {
   const abbreviations = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
 
   schedulerProfessorElements.forEach(async (element) => {
-    if (element.querySelector('.rating-badge')) {
-      return; // Skip if badge already exists
+    if (element.dataset.badgeProcessed) {
+      return; // Skip already processed elements
     }
 
     // Check for weekday-related content
@@ -548,6 +548,8 @@ function processSchedulerSite() {
       return;
     }
 
+    element.dataset.badgeProcessed = 'true';
+
     for (const name of professorNames) {
       await handleProfessorDetails(element, name);
     }
@@ -566,8 +568,8 @@ function processOtherSite() {
     // Initialize a Set to track processed names for this element
     const processedNames = new Set();
 
-    if (element.querySelector('.rating-badge')) {
-      return; // Skip if any badge already exists
+    if (element.dataset.badgeProcessed) {
+      return; // Skip already processed elements
     }
 
     // Check for weekday-related content
@@ -613,6 +615,9 @@ function processOtherSite() {
     // Deduplicate names (case-insensitive)
     const uniqueNames = Array.from(new Set(namesArray.map(name => name.toLowerCase())))
       .map(lowerName => namesArray.find(name => name.toLowerCase() === lowerName));
+    
+    // Mark as processed to prevent future duplicate processing
+    element.dataset.badgeProcessed = 'true';
 
     for (const name of uniqueNames) {
       // Avoid processing the same name multiple times for this element
@@ -634,12 +639,8 @@ document.addEventListener('click', () => {
 });
 
 // Observe dynamic changes in the DOM
-let timeout;
 const observer = new MutationObserver(() => {
-  if (timeout) clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    processProfessorElements();
-  }, 700);
+  processProfessorElements();
 });
 
 // Start observing for dynamic changes
