@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       const { query } = req.body;
 
       // Use the query string as the cache key
-      const cacheKey = JSON.stringify(query);
+      const cacheKey = JSON.stringify(query).replace(/\s+/g, ' ').trim();
 
       // Check if data exists in cache
       const cachedData = cache.get(cacheKey);
