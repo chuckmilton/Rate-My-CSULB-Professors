@@ -23,7 +23,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json"],
+        "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json", "excludedSubjects.json"],
         "matches": ["https://*.csulb.edu/*", "https://csulb.collegescheduler.com/*"]
       }
     ],

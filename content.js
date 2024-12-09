@@ -1,6 +1,7 @@
 let currentTooltip = null; // Track the currently visible tooltip
 let emojis = {}; // Object to store the loaded emojis
 let nameMappings = {}; // Object to store the name mappings
+let excludedSubjects = new Set(); // Initialize an empty Set for excluded subjects
 
 // Load emojis.json
 fetch(chrome.runtime.getURL('emojis.json'))
@@ -21,7 +22,19 @@ fetch(chrome.runtime.getURL('nameMappings.json'))
   function cleanExtractedName(name) {
     return name.replace(/\bTo be Announced\b/gi, '').trim();
   }
+
+fetch(chrome.runtime.getURL('excludedSubjects.json'))
+  .then((response) => response.json())
+  .then((data) => {
+    excludedSubjects = new Set(data.map(subject => subject.toLowerCase()));
+  })
+  .catch((error) => console.error('Failed to load excludedSubjects.json:', error));
   
+  
+function isExcludedName(name) {
+  const normalizedName = name.toLowerCase().trim();
+  return excludedSubjects.has(normalizedName);
+}
 
 // Function to request professor details from the background script
 function fetchProfessorDetails(name) {
@@ -524,7 +537,12 @@ function processSchedulerSite() {
     const professorSpans = element.querySelectorAll('span');
     const professorNames = Array.from(professorSpans)
       .map((span) => span.textContent.trim())
-      .filter((name) => /^(?=.*[A-Za-z])[A-Za-z0-9\s,\-\.\(\)']+$/.test(name));
+      .filter((name) => {
+        // Valid name: must contain letters and not match excluded subjects or pure numbers
+        const isValidName = /^(?=.*[A-Za-z])[A-Za-z0-9\s,\-\.\(\)']+$/.test(name);
+        const isNotExcluded = !isExcludedName(name);
+        return isValidName && isNotExcluded;
+      });
 
     if (professorNames.length === 0) {
       return;
