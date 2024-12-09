@@ -524,7 +524,7 @@ function processSchedulerSite() {
     const professorSpans = element.querySelectorAll('span');
     const professorNames = Array.from(professorSpans)
       .map((span) => span.textContent.trim())
-      .filter((name) => /^[a-zA-Z\s\-\.']+$/.test(name)); // Validate names
+      .filter((name) => /^(?=.*[A-Za-z])[A-Za-z0-9\s,\-\.\(\)']+$/.test(name));
 
     if (professorNames.length === 0) {
       return;
@@ -545,8 +545,11 @@ function processOtherSite() {
   const abbreviations = ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'];
 
   professorElements.forEach(async (element) => {
+    // Initialize a Set to track processed names for this element
+    const processedNames = new Set();
+
     if (element.querySelector('.rating-badge')) {
-      return; // Skip if badge already exists
+      return; // Skip if any badge already exists
     }
 
     // Check for weekday-related content
@@ -570,15 +573,35 @@ function processOtherSite() {
       return;
     }
 
-    // Updated regex to allow hyphens, periods, and apostrophes
-    if (!/^[a-zA-Z\s,\-\.']+$/.test(professorName)) {
+    // Updated regex to allow hyphens, periods, apostrophes, parentheses, and digits
+    const validNameRegex = /^(?=.*[A-Za-z])[A-Za-z0-9\s,\-\.\(\)']+$/;
+
+    if (!validNameRegex.test(professorName)) {
       return;
     }
 
-    // Split names by commas and process each name
-    const namesArray = professorName.split(/\s*,\s*/); // Split by commas and trim spaces
+    // Split names by line breaks (represented by <br> in HTML) and remove trailing commas
+    const namesArray = professorName
+      .split(/\n|<br\s*\/?>/i) // Split by newline characters or <br> tags
+      .map(name => name.replace(/,$/, '').trim()) // Remove trailing commas and trim spaces
+      .filter(name => {
+        // Exclude "To be Announced" and "TBA" after splitting
+        return (
+          name.length > 0 && 
+          !/^(To be Announced|TBA)$/i.test(name)
+        );
+      });
 
-    for (const name of namesArray) {
+    // Deduplicate names (case-insensitive)
+    const uniqueNames = Array.from(new Set(namesArray.map(name => name.toLowerCase())))
+      .map(lowerName => namesArray.find(name => name.toLowerCase() === lowerName));
+
+    for (const name of uniqueNames) {
+      // Avoid processing the same name multiple times for this element
+      if (processedNames.has(name.toLowerCase())) {
+        continue;
+      }
+      processedNames.add(name.toLowerCase());
       await handleProfessorDetails(element, name);
     }
   });
