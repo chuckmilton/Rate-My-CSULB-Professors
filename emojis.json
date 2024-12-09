@@ -1,5 +1,4 @@
 {
-    "Any": "🔍",
     "Accounting": "📊💰",
     "Administration": "🏢📋",
     "Aerospace Studies": "✈️🚀",
@@ -38,6 +37,7 @@
     "Comparative Literature": "📚🌏",
     "Computer Engineering": "💻⚙️",
     "Computer Engineering & Computer Science": "💻🧠",
+    "Computer Engineering and Computer Science": "💻🧠",
     "Computer Science": "🖥️💾",
     "Construction": "🏗️🔨",
     "Consumer Affairs": "🛍️📈",
@@ -76,6 +76,7 @@
     "Health Administration": "🏥📋",
     "Health Care Administration": "🏥📂",
     "Health Science": "🧬⚕️",
+    "Hebrew": "🇮🇱📖",
     "History": "📜🏰",
     "Hospitality": "🏨🍽️",
     "Hotel & Restaurant Management": "🏨🍽️",

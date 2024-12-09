@@ -1,5 +1,5 @@
 export default class LRUCache {
-    constructor(limit = 50) {
+    constructor(limit = 200) {
       this.limit = limit;
       this.cache = new Map();
     }

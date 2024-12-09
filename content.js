@@ -92,12 +92,12 @@ function createTooltip(details) {
     const customCard = `
       <div class="custom-prof-card">
         <div class="custom-prof-card-header">
-          <img src="${chrome.runtime.getURL('images/csulb_logo.png')}" alt="CSULB Logo" class="csulb-logo" />
+          <img src="${chrome.runtime.getURL('images/palm_tree.png')}" alt="Palm Tree" class="csulb-logo" />
           <h3>Professor Not Found!</h3>
           <img src="${chrome.runtime.getURL('images/shark.png')}" alt="Frustrated Shark" class="frustrated-shark" />
         </div>
         <div class="custom-prof-card-body">
-          <p>Elbee not happy—how dare you leave us hanging without professor info!</p>
+          <p>Grrr not very happy—how dare they leave us hanging without professor info!</p>
           <p>Time to navigate to another resource, perhaps?</p>
         </div>
       </div>
