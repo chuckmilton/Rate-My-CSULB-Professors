@@ -1,8 +1,9 @@
 import LRUCache from './lrucache.js';
 
 const cache = new LRUCache(200); // Cache with a limit of 200 entries
-const proxyURL = "https://rate-my-csulb-professors.vercel.app/api/graphql"; // Proxy server URL
+const proxyURL = "https://www.ratemyprofessors.com/graphql"; // Proxy server URL
 const CSULB_SCHOOL_ID = "U2Nob29sLTE4ODQ2"; // CSULB legacyId
+const AUTHORIZATION_TOKEN = "Basic dGVzdDp0ZXN0";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'fetchProfessorDetails') {
@@ -236,6 +237,7 @@ async function fetchProfessorDetails(name) {
     const response = await fetch(proxyURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      Authorization: AUTHORIZATION_TOKEN,
       body: JSON.stringify(query),
     });
 
