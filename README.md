@@ -49,7 +49,7 @@ The **Rate My CSULB Professors Chrome Extension** enhances your experience while
 **Example of Ratings Displayed:**
 ![Screenshot 1](screenshots/rating-display.png)
 
-**Pop-up Hover Information:**
+**Pop-up Information (Clicking on rating badge):**
 ![Screenshot 2](screenshots/popup-info.png)
 
 ---
