@@ -56,8 +56,8 @@ The **Rate My CSULB Professors Chrome Extension** enhances your experience while
 
 ## Contact
 Developed by **Charles Milton**  
-Email: [chuckmilton123@gmail.com](mailto:charlesmiltoncs@gmail.com)  
-Website: [chuckmilton](https://chuckmilton.com/)
+Email: [charlesmiltoncs@gmail.com](mailto:charlesmiltoncs@gmail.com)  
+Website: [https://chuckmilton.com](https://chuckmilton.com/)
 
 ---
 
