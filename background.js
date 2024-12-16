@@ -236,8 +236,11 @@ async function fetchProfessorDetails(name) {
 
     const response = await fetch(proxyURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      Authorization: AUTHORIZATION_TOKEN,
+      headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+				Authorization: AUTHORIZATION_TOKEN,
+			},
       body: JSON.stringify(query),
     });
 

@@ -1,11 +1,12 @@
 {
     "manifest_version": 3,
     "name": "Rate My CSULB Professors",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Display RateMyProfessors ratings for professors at CSULB.",
     "permissions": [],
     "host_permissions": [
-      "https://www.ratemyprofessors.com/*"
+      "https://ratemyprofessors.com/graphql",
+		  "https://www.ratemyprofessors.com/graphql"
     ],
     "background": {
       "service_worker": "background.js",
