@@ -3,7 +3,7 @@
   "name": "Rate My CSULB Professors",
   "version": "1.0.3",
   "description": "Display RateMyProfessors ratings for professors at CSULB.",
-  "permissions": ["cookies", "storage"],
+  "permissions": [],
   "host_permissions": [
     "https://www.ratemyprofessors.com/*"
   ],

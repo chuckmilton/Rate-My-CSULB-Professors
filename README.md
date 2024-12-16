@@ -35,9 +35,10 @@ The **Rate My CSULB Professors Chrome Extension** enhances your experience while
 
 ## How to Use
 
-1. Visit either **CSULB's MyCSULB Student Center or Schedule Planner**.
-2. The professor's **RMP rating** will automatically appear to the right of their name.
-3. Click on the rating to see:
+1. Make sure you are **logged into Rate My Professors** or else it will not display any ratings.
+2. Visit either **CSULB's MyCSULB Student Center or Schedule Planner**.
+3. The professor's **RMP rating** will automatically appear to the right of their name.
+4. Click on the rating to see:
    - **Would Take Again %**
    - **Difficulty Rating**
    - **Top Comments**

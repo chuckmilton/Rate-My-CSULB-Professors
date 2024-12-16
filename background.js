@@ -10,13 +10,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { professorName } = message;
 
     // Check cache first
-    if (cache.get(professorName)) {
-      sendResponse({ success: true, details: cache.get(professorName) });
+    const cachedDetails = cache.get(professorName);
+    if (cachedDetails) {
+      sendResponse({ success: true, details: cachedDetails });
       return;
     }
+
     fetchProfessorDetails(professorName)
       .then((details) => {
-        cache.set(professorName, details); // Cache the result
+        // Only cache the result if it's valid (professorName is not "N/A")
+        if (details.professorName !== "N/A") {
+          cache.set(professorName, details); // Cache the result
+        }
         sendResponse({ success: true, details });
       })
       .catch((error) => {
