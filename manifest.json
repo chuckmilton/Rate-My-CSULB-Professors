@@ -1,37 +1,36 @@
 {
-    "manifest_version": 3,
-    "name": "Rate My CSULB Professors",
-    "version": "1.0.3",
-    "description": "Display RateMyProfessors ratings for professors at CSULB.",
-    "permissions": [],
-    "host_permissions": [
-      "https://rate-my-csulb-professors.vercel.app/*"
-    ],
-    "background": {
-      "service_worker": "background.js",
-      "type": "module"
-    },
-    "content_scripts": [
-      {
-        "matches": [
-            "https://*.csulb.edu/*",
-            "https://csulb.collegescheduler.com/*"
-                    ],
-        "js": ["content.js"],
-        "css": ["content.css"]
-      }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json", "excludedSubjects.json"],
-        "matches": ["https://*.csulb.edu/*", "https://csulb.collegescheduler.com/*"]
-      }
-    ],
-    "icons": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+  "manifest_version": 3,
+  "name": "Rate My CSULB Professors",
+  "version": "1.0.3",
+  "description": "Display RateMyProfessors ratings for professors at CSULB.",
+  "permissions": ["cookies", "storage"],
+  "host_permissions": [
+    "https://www.ratemyprofessors.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+          "https://*.csulb.edu/*",
+          "https://csulb.collegescheduler.com/*"
+                  ],
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json", "excludedSubjects.json"],
+      "matches": ["https://*.csulb.edu/*", "https://csulb.collegescheduler.com/*"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   }
-  
+}
