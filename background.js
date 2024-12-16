@@ -10,18 +10,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { professorName } = message;
 
     // Check cache first
-    const cachedDetails = cache.get(professorName);
-    if (cachedDetails) {
-      sendResponse({ success: true, details: cachedDetails });
+    if (cache.get(professorName)) {
+      sendResponse({ success: true, details: cache.get(professorName) });
       return;
     }
-
     fetchProfessorDetails(professorName)
       .then((details) => {
-        // Only cache the result if it's valid (professorName is not "N/A")
-        if (details.professorName !== "N/A") {
-          cache.set(professorName, details); // Cache the result
-        }
+        cache.set(professorName, details); // Cache the result
         sendResponse({ success: true, details });
       })
       .catch((error) => {
@@ -241,8 +236,11 @@ async function fetchProfessorDetails(name) {
 
     const response = await fetch(proxyURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: AUTHORIZATION_TOKEN },
-      
+      headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+				Authorization: AUTHORIZATION_TOKEN,
+			},
       body: JSON.stringify(query),
     });
 

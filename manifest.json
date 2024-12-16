@@ -5,7 +5,8 @@
   "description": "Display RateMyProfessors ratings for professors at CSULB.",
   "permissions": [],
   "host_permissions": [
-    "https://www.ratemyprofessors.com/*"
+    "https://ratemyprofessors.com/graphql",
+    "https://www.ratemyprofessors.com/graphql"
   ],
   "background": {
     "service_worker": "background.js",

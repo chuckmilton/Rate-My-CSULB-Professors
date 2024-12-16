@@ -97,8 +97,8 @@ function createTooltip(details) {
           <img src="${chrome.runtime.getURL('images/shark.png')}" alt="Frustrated Shark" class="frustrated-shark" />
         </div>
         <div class="custom-prof-card-body">
-          <p>To fully utilize this extension, please log into <a href="https://www.ratemyprofessors.com/login" target="_blank">RateMyProfessors</a> and then refresh the page.</p>
-          <p>If you are already logged in, you might still encounter some professors who are not listed on RateMyProfessors. If you can't find a specific professor, it means they may not be available on the platform.</p>
+          <p>Grrr not very happy—how dare they leave us hanging without professor info!</p>
+          <p>Time to navigate to another resource, perhaps?</p>
         </div>
       </div>
     `;
