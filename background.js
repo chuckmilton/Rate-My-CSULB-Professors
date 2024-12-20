@@ -223,6 +223,12 @@ async function fetchProfessorDetails(name) {
                         class
                         thumbsUpTotal
                         thumbsDownTotal
+                        helpfulRating
+                        clarityRating
+                        difficultyRating
+                        wouldTakeAgain
+                        grade
+                        ratingTags
                       }
                     }
                   }
@@ -232,7 +238,7 @@ async function fetchProfessorDetails(name) {
           }
         }
       `,
-    };
+    };    
 
     const response = await fetch(proxyURL, {
       method: "POST",
@@ -336,6 +342,12 @@ async function fetchProfessorDetails(name) {
       const comments = professor.ratings.edges.map((rating) => ({
         comment: rating.node.comment,
         class: rating.node.class,
+        helpfulRating: rating.node.helpfulRating,
+        clarityRating: rating.node.clarityRating,
+        difficultyRating: rating.node.difficultyRating,
+        wouldTakeAgain: rating.node.wouldTakeAgain,
+        grade: rating.node.grade,
+        ratingTags: rating.node.ratingTags,
         likes: rating.node.thumbsUpTotal,
         dislikes: rating.node.thumbsDownTotal,
       }));

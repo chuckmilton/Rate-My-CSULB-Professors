@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Rate My CSULB Professors",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Display RateMyProfessors ratings for professors at CSULB.",
   "permissions": [],
   "host_permissions": [
@@ -24,7 +24,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/rmp.svg", "emojis.json", "images/*.png", "nameMappings.json", "excludedSubjects.json"],
+      "resources": ["images/*.svg", "emojis.json", "images/*.png", "nameMappings.json", "excludedSubjects.json"],
       "matches": ["https://*.csulb.edu/*", "https://csulb.collegescheduler.com/*"]
     }
   ],
@@ -33,5 +33,11 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "your-extension-id@domain.com",
+      "strict_min_version": "91.0"
+    }
   }
 }

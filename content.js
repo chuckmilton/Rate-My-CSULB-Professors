@@ -3,6 +3,143 @@ let emojis = {}; // Object to store the loaded emojis
 let nameMappings = {}; // Object to store the name mappings
 let excludedSubjects = new Set(); // Initialize an empty Set for excluded subjects
 
+// **Color Utility Functions**
+function getAverageRatingColor(rating) {
+  if (rating === 'N/A') return '#d3d3d3'; // Gray for N/A
+  const numRating = parseFloat(rating);
+  if (isNaN(numRating)) return '#d3d3d3';
+
+  if (numRating >= 4.0) return '#7ff6c3'; // Light Green
+  if (numRating >= 3.0) return '#fff170'; // Light Yellow
+  return '#ff9c9c'; // Light Red for ratings below 3.0
+}
+
+function getDifficultyColor(difficulty) {
+  if (difficulty === 'N/A') return '#d3d3d3'; // Gray for N/A
+  const numDifficulty = parseFloat(difficulty);
+  if (isNaN(numDifficulty)) return '#d3d3d3';
+
+  if (numDifficulty >= 4.0) return '#ff9c9c'; // Light Red for High Difficulty
+  if (numDifficulty >= 3.0) return '#fff170'; // Light Yellow for Medium Difficulty
+  return '#7ff6c3'; // Light Green for Low Difficulty
+}
+
+function getWouldTakeAgainColor(value) {
+  if (value === 1) return '#b3ffe6'; // Light Green for Yes
+  if (value === 0) return '#ffe6e6'; // Light Red for No
+  return '#d3d3d3'; // Gray for N/A
+}
+
+function getWouldTakeAgainPercentageColor(percentage) {
+  if (percentage === 'N/A') return '#d3d3d3'; // Gray for N/A
+  const numPercentage = parseFloat(percentage);
+  if (isNaN(numPercentage)) return '#d3d3d3'; // Gray for invalid numbers
+
+  if (numPercentage >= 75) return '#7ff6c3'; // Light Green for high percentage
+  if (numPercentage >= 50) return '#fff170'; // Light Yellow for medium percentage
+  return '#ff9c9c'; // Light Red for low percentage
+}
+
+function getGradeColor(grade) {
+  // Ensure grade is a string; if not, default to 'N/A'
+  const safeGrade = typeof grade === 'string' ? grade.trim() : 'N/A';
+
+  // Define non-standard grades that should be treated as 'N/A'
+  const nonStandardGrades = ['NOT SURE YET', 'INCOMPLETE', 'RATHER NOT SAY'];
+
+  // Check if the grade is in the non-standard grades list
+  if (nonStandardGrades.includes(safeGrade.toUpperCase())) {
+    return '#d3d3d3'; // Gray for non-standard grades
+  }
+
+  // Handle 'N/A' explicitly
+  if (safeGrade.toUpperCase() === 'N/A') {
+    return '#d3d3d3'; // Gray for N/A
+  }
+
+  const gradeUpper = safeGrade.toUpperCase();
+
+  // Define grade categories including '+' and '-' grades
+  const gradeGreen = ['A+', 'A', 'A-'];
+  const gradeYellow = ['B+', 'B', 'B-'];
+  const gradeRed = ['C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+
+  if (gradeGreen.includes(gradeUpper)) {
+    return '#b3ffe6'; // Light Green
+  }
+
+  if (gradeYellow.includes(gradeUpper)) {
+    return '#ffffcc'; // Light Yellow
+  }
+
+  if (gradeRed.includes(gradeUpper)) {
+    return '#ffe6e6'; // Light Red
+  }
+
+  return '#d3d3d3'; // Gray for other grades
+}
+
+// **New Function: Get Individual Grade Color (Lighter Shades)**
+function getIndividualGradeColor(grade) {
+  // Ensure grade is a string; if not, default to 'N/A'
+  const safeGrade = typeof grade === 'string' ? grade.trim() : 'N/A';
+
+  // Define non-standard grades that should be treated as 'N/A'
+  const nonStandardGrades = ['NOT SURE YET', 'INCOMPLETE', 'RATHER NOT SAY'];
+
+  // Check if the grade is in the non-standard grades list
+  if (nonStandardGrades.includes(safeGrade.toUpperCase())) {
+    return '#d3d3d3'; // Lighter Gray for non-standard grades
+  }
+
+  // Handle 'N/A' explicitly
+  if (safeGrade.toUpperCase() === 'N/A') {
+    return '#d3d3d3'; // Lighter Gray for N/A
+  }
+
+  const gradeUpper = safeGrade.toUpperCase();
+
+  // Define grade categories including '+' and '-' grades
+  const gradeGreen = ['A+', 'A', 'A-'];
+  const gradeYellow = ['B+', 'B', 'B-'];
+  const gradeRed = ['C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+
+  if (gradeGreen.includes(gradeUpper)) {
+    return '#b3ffe6'; // Lighter Green
+  }
+
+  if (gradeYellow.includes(gradeUpper)) {
+    return '#ffffcc'; // Lighter Yellow
+  }
+
+  if (gradeRed.includes(gradeUpper)) {
+    return '#ffe6e6'; // Lighter Red
+  }
+
+  return '#d3d3d3'; // Lighter Gray for other grades
+}
+
+// **New Function: Get Individual Difficulty Color (Inverted Colors)**
+function getIndividualDifficultyColor(difficulty) {
+  if (difficulty === 'N/A') return '#d3d3d3'; // Gray for N/A
+  const numDifficulty = parseFloat(difficulty);
+  if (isNaN(numDifficulty)) return '#d3d3d3';
+
+  if (numDifficulty >= 4.0) return '#ffe6e6'; // Light Red for High Difficulty
+  if (numDifficulty >= 3.0) return '#ffffcc'; // Light Yellow for Medium Difficulty
+  return '#b3ffe6'; // Light Green for Low Difficulty
+}
+
+function getIndividualRatingColor(rating) {
+  if (rating === 'N/A') return '#d3d3d3'; // Gray for N/A
+  const numRating = parseFloat(rating);
+  if (isNaN(numRating)) return '#d3d3d3';
+
+  if (numRating >= 4.0) return '#b3ffe6'; // Light Green
+  if (numRating >= 3.0) return '#ffffcc'; // Light Yellow
+  return '#ffe6e6'; // Light Red for ratings below 3.0
+}
+
 // Load emojis.json
 fetch(chrome.runtime.getURL('emojis.json'))
   .then((response) => response.json())
@@ -19,9 +156,9 @@ fetch(chrome.runtime.getURL('nameMappings.json'))
   })
   .catch((error) => console.error('Failed to load nameMappings.json:', error));
 
-  function cleanExtractedName(name) {
-    return name.replace(/\bTo be Announced\b/gi, '').trim();
-  }
+function cleanExtractedName(name) {
+  return name.replace(/\bTo be Announced\b/gi, '').trim();
+}
 
 fetch(chrome.runtime.getURL('excludedSubjects.json'))
   .then((response) => response.json())
@@ -29,8 +166,8 @@ fetch(chrome.runtime.getURL('excludedSubjects.json'))
     excludedSubjects = new Set(data.map(subject => subject.toLowerCase()));
   })
   .catch((error) => console.error('Failed to load excludedSubjects.json:', error));
-  
-  
+
+
 function isExcludedName(name) {
   const normalizedName = name.toLowerCase().trim();
   return excludedSubjects.has(normalizedName);
@@ -105,26 +242,32 @@ function createTooltip(details) {
     tooltip.innerHTML = customCard;
     tooltip.classList.add('custom-tooltip'); // Additional class for custom styling
   } else {
-    // Existing standard tooltip for professors with available details
     const profileLink = details.profileLink || '#';
     const departmentEmojis = emojis[details.department] || '';
 
     // Define emojis for different categories
     const ratingEmoji = details.rating >= 4.0 ? '⭐' : details.rating >= 3.0 ? '👌' : '💩';
     const difficultyEmoji = details.difficulty >= 4.0 ? '💀' : details.difficulty >= 3.0 ? '🤯' : '🌈';
-    const roundedWouldTakeAgain = Math.round(details.wouldTakeAgain) || 'N/A';
-    const wouldTakeAgainEmoji =
-      roundedWouldTakeAgain >= 75 ? '🥳' : roundedWouldTakeAgain >= 50 ? '😐' : '🤡';
+    
+    // **Update "Would Take Again" Display Logic for Percentage with Rounding and Emojis**
+    let wouldTakeAgainPercentage = 'N/A';
+    let wouldTakeAgainColor = '#d3d3d3'; // Default to Gray
+    let wouldTakeAgainEmoji = ''; // Initialize emoji
 
-    // Color utility for ratings
-    const getRatingColor = (rating) =>
-      rating >= 4.0 ? '#7ff6c3' : rating >= 3.0 ? '#fff170' : '#ff9c9c';
-
-    const getInverseRatingColor = (value) =>
-      value >= 0.75 ? '#7ff6c3' : value >= 0.5 ? '#fff170' : '#ff9c9c';
-
-    const getDifficultyColor = (difficulty) =>
-      difficulty <= 2.0 ? '#7ff6c3' : difficulty <= 3.0 ? '#fff170' : '#ff9c9c';
+    if (details.wouldTakeAgain !== 'N/A' && !isNaN(details.wouldTakeAgain)) {
+      const roundedPercentage = Math.round(parseFloat(details.wouldTakeAgain));
+      wouldTakeAgainPercentage = `${roundedPercentage}%`;
+      wouldTakeAgainColor = getWouldTakeAgainPercentageColor(roundedPercentage);
+      
+      // **Assign Emoji Based on Percentage**
+      if (roundedPercentage >= 75) {
+        wouldTakeAgainEmoji = '🥳'; // Celebratory emoji for high percentage
+      } else if (roundedPercentage >= 50) {
+        wouldTakeAgainEmoji = '😐'; // Neutral emoji for medium percentage
+      } else {
+        wouldTakeAgainEmoji = '🤡'; // Clown emoji for low percentage
+      }
+    }
 
     // Create the Title Section
     const titleSection = `
@@ -139,34 +282,30 @@ function createTooltip(details) {
       </div>
     `;
 
-    // Create the Main Info Section with color-coded backgrounds
+    // Create the Main Info Section with color-coded backgrounds and emojis
     const mainInfoSection = `
       <div class="prof-card-main-info">
         <div class="prof-card-detail">
           <span class="prof-card-label">Rating:</span>
-          <span class="prof-card-value" style="background-color: ${getRatingColor(details.rating)};">
+          <span class="prof-card-value" style="background-color: ${getAverageRatingColor(details.rating)} !important;">
             ${details.rating || 'N/A'} ${ratingEmoji}
           </span>
         </div>
         <div class="prof-card-detail">
           <span class="prof-card-label">Review(s):</span>
-          <span class="prof-card-value" style="background-color: #f0f0f0;">
+          <span class="prof-card-value" style="background-color: #f0f0f0 !important;">
             ${details.numRatings || 0}
           </span>
         </div>
         <div class="prof-card-detail">
           <span class="prof-card-label">Would Take Again:</span>
-          <span class="prof-card-value" style="background-color: ${getInverseRatingColor(
-            roundedWouldTakeAgain / 100
-          )};">
-            ${roundedWouldTakeAgain}% ${wouldTakeAgainEmoji}
+          <span class="prof-card-value" style="background-color: ${wouldTakeAgainColor} !important;">
+            ${wouldTakeAgainPercentage} ${wouldTakeAgainEmoji}
           </span>
         </div>
         <div class="prof-card-detail">
           <span class="prof-card-label">Difficulty:</span>
-          <span class="prof-card-value" style="background-color: ${getDifficultyColor(
-            details.difficulty
-          )};">
+          <span class="prof-card-value" style="background-color: ${getDifficultyColor(details.difficulty)} !important;">
             ${details.difficulty || 'N/A'} ${difficultyEmoji}
           </span>
         </div>
@@ -206,6 +345,8 @@ function createTooltip(details) {
   tooltip.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.2)';
   tooltip.style.zIndex = '1000';
   tooltip.style.display = 'none';
+  tooltip.style.maxWidth = '500px'; // Increased width for better layout
+  tooltip.style.wordWrap = 'break-word';
 
   // Add specific styling for the custom tooltip
   if (details.professorName === "N/A") {
@@ -236,9 +377,15 @@ function createCommentsSection(comments) {
   let filteredComments = comments.slice(); // Clone the comments array
   let currentCommentIndex = 0;
 
-  // Function to render the current comment
+  // Function to render the current comment with individual ratings
   const renderComment = (index) => {
     const comment = filteredComments[index];
+
+    // **Updated "Would Take Again" Display Logic for Individual Comments**
+    const wouldTakeAgainText = comment.wouldTakeAgain === 1 ? 'Yes' :
+                                comment.wouldTakeAgain === 0 ? 'No' :
+                                'N/A';
+
     return `
       <div class="prof-card-review">
         <div class="prof-card-review-header">
@@ -246,6 +393,23 @@ function createCommentsSection(comments) {
           <div class="prof-card-review-date">👍${comment.likes || 0} / 👎${comment.dislikes || 0}</div>
         </div>
         <div class="prof-card-review-comment">${comment.comment || 'No comment'}</div>
+        <div class="prof-card-review-individual-ratings">
+          <span style="background-color: ${getIndividualRatingColor(comment.helpfulRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+            <strong>Helpfulness:</strong> ${comment.helpfulRating !== null ? comment.helpfulRating : 'N/A'}/5
+          </span>
+          <span style="background-color: ${getIndividualRatingColor(comment.clarityRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+            <strong>Clarity:</strong> ${comment.clarityRating !== null ? comment.clarityRating : 'N/A'}/5
+          </span>
+          <span style="background-color: ${getIndividualDifficultyColor(comment.difficultyRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+            <strong>Difficulty:</strong> ${comment.difficultyRating !== null ? comment.difficultyRating : 'N/A'}/5
+          </span>
+          <span style="background-color: ${getWouldTakeAgainColor(comment.wouldTakeAgain)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+            <strong>Would Take Again:</strong> ${wouldTakeAgainText}
+          </span>
+          <span style="background-color: ${getIndividualGradeColor(comment.grade)} !important; padding: 2px 4px; border-radius: 4px;">
+            <strong>Grade:</strong> ${comment.grade !== null ? comment.grade : 'N/A'}
+          </span>
+        </div>
       </div>
     `;
   };
@@ -316,11 +480,11 @@ async function handleProfessorDetails(element, name) {
     // Apply background color based on rating
     const rating = parseFloat(details.rating);
     if (rating >= 0 && rating <= 2.9) {
-      ratingBadge.style.backgroundColor = '#ff9c9c'; // Red
+      ratingBadge.style.backgroundColor = '#ff9c9c'; // Light Red
     } else if (rating >= 3.0 && rating <= 3.9) {
-      ratingBadge.style.backgroundColor = '#fff170'; // Yellow
+      ratingBadge.style.backgroundColor = '#fff170'; // Light Yellow
     } else if (rating >= 4.0 && rating <= 5.0) {
-      ratingBadge.style.backgroundColor = '#7ff6c3'; // Green
+      ratingBadge.style.backgroundColor = '#7ff6c3'; // Light Green
     } else {
       ratingBadge.style.backgroundColor = '#d3d3d3'; // Gray for N/A or invalid
     }
@@ -340,8 +504,8 @@ async function handleProfessorDetails(element, name) {
         currentTooltip.style.display = 'none';
       }
       tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
-      tooltip.style.top = `${event.pageY + 10}px`;
-      tooltip.style.left = `${event.pageX + 10}px`;
+      tooltip.style.top = `${event.pageY + -200}px`;
+      tooltip.style.left = `${event.pageX + 40}px`;
       currentTooltip = tooltip.style.display === 'block' ? tooltip : null;
 
       // If the tooltip has navigation buttons, attach event listeners
@@ -363,24 +527,21 @@ async function handleProfessorDetails(element, name) {
   }
 }
 
-// Function to attach navigation event listeners to the tooltip
 function attachCommentNavigation(tooltip, comments) {
   const nextButton = tooltip.querySelector('.next-comment');
   const prevButton = tooltip.querySelector('.prev-comment');
   const commentCounter = tooltip.querySelector('.comment-counter');
   const courseSelect = tooltip.querySelector('#course-select');
 
-  if (!nextButton || !prevButton || !commentCounter) return; // Ensure navigation buttons and counter exist
+  if (!nextButton || !prevButton || !commentCounter) return;
 
-  let filteredComments = comments.slice(); // Clone the comments array
+  let filteredComments = comments.slice();
   let currentCommentIndex = 0;
 
   // If courseSelect exists, handle filtering
   if (courseSelect) {
-    // Extract unique courses from comments
     const uniqueCourses = Array.from(new Set(comments.map(comment => comment.class).filter(Boolean)));
 
-    // Function to handle course filtering
     const handleCourseFilter = () => {
       const selectedCourse = courseSelect.value;
       if (selectedCourse === 'All') {
@@ -392,45 +553,73 @@ function attachCommentNavigation(tooltip, comments) {
       renderFilteredComments();
     };
 
-    // Event listener for Course Filter dropdown
     courseSelect.addEventListener('change', handleCourseFilter);
   }
 
-  // Function to update the displayed comment
   const updateComment = (newIndex) => {
     if (newIndex < 0 || newIndex >= filteredComments.length) return;
     currentCommentIndex = newIndex;
-    const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
-    const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
-    const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+    const currentComment = filteredComments[currentCommentIndex];
 
     // Update comment text
-    const currentComment = filteredComments[currentCommentIndex];
+    const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
     if (commentContainer) {
       commentContainer.textContent = currentComment.comment || 'No comment';
     }
 
-    // Update course and likes/dislikes
-    if (courseContainer && likesDislikesContainer) {
+    // Update course name
+    const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
+    if (courseContainer) {
       courseContainer.textContent = currentComment.class || 'N/A';
+    }
+
+    // Update likes and dislikes
+    const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+    if (likesDislikesContainer) {
       likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+    }
+
+    // Update individual ratings
+    const individualRatingsContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-individual-ratings');
+    if (individualRatingsContainer) {
+      // **Updated "Would Take Again" Display Logic for Individual Comments**
+      const wouldTakeAgainText = currentComment.wouldTakeAgain === 1 ? 'Yes' :
+                                  currentComment.wouldTakeAgain === 0 ? 'No' :
+                                  'N/A';
+
+      individualRatingsContainer.innerHTML = `
+        <span style="background-color: ${getIndividualRatingColor(currentComment.helpfulRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Helpfulness:</strong> ${currentComment.helpfulRating !== null ? currentComment.helpfulRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getIndividualRatingColor(currentComment.clarityRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Clarity:</strong> ${currentComment.clarityRating !== null ? currentComment.clarityRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getIndividualDifficultyColor(currentComment.difficultyRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Difficulty:</strong> ${currentComment.difficultyRating !== null ? currentComment.difficultyRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getWouldTakeAgainColor(currentComment.wouldTakeAgain)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Would Take Again:</strong> ${wouldTakeAgainText}
+        </span>
+        <span style="background-color: ${getIndividualGradeColor(currentComment.grade)} !important; padding: 2px 4px; border-radius: 4px;">
+          <strong>Grade:</strong> ${currentComment.grade !== null ? currentComment.grade : 'N/A'}
+        </span>
+      `;
     }
 
     // Update comment counter
     commentCounter.textContent = `${currentCommentIndex + 1} of ${filteredComments.length}`;
-
-    // Disable/Enable buttons based on current index
+    
+    // Disable/Enable navigation buttons based on current index
     prevButton.disabled = currentCommentIndex === 0;
     nextButton.disabled = currentCommentIndex === filteredComments.length - 1;
   };
 
-  // Function to render comments based on filtering
   const renderFilteredComments = () => {
     if (filteredComments.length === 0) {
       const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
       const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
       const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
-      const commentCounter = tooltip.querySelector('.comment-counter');
+      const individualRatingsContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-individual-ratings');
 
       if (commentContainer) {
         commentContainer.textContent = 'No comments available for the selected course.';
@@ -441,6 +630,9 @@ function attachCommentNavigation(tooltip, comments) {
       if (likesDislikesContainer) {
         likesDislikesContainer.textContent = '';
       }
+      if (individualRatingsContainer) {
+        individualRatingsContainer.innerHTML = ''; // Clear individual ratings
+      }
       if (commentCounter) {
         commentCounter.textContent = '0 of 0';
       }
@@ -449,11 +641,12 @@ function attachCommentNavigation(tooltip, comments) {
       return;
     }
 
-    // Update the first comment
+    // Update the comment display
     const currentComment = filteredComments[currentCommentIndex];
     const commentContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-comment');
     const courseContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-course');
     const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
+    const individualRatingsContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-individual-ratings');
 
     if (commentContainer) {
       commentContainer.textContent = currentComment.comment || 'No comment';
@@ -463,6 +656,30 @@ function attachCommentNavigation(tooltip, comments) {
     }
     if (likesDislikesContainer) {
       likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+    }
+    if (individualRatingsContainer) {
+      // **Updated "Would Take Again" Display Logic for Individual Comments**
+      const wouldTakeAgainText = currentComment.wouldTakeAgain === 1 ? 'Yes' :
+                                  currentComment.wouldTakeAgain === 0 ? 'No' :
+                                  'N/A';
+
+      individualRatingsContainer.innerHTML = `
+        <span style="background-color: ${getIndividualRatingColor(currentComment.helpfulRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Helpfulness:</strong> ${currentComment.helpfulRating !== null ? currentComment.helpfulRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getIndividualRatingColor(currentComment.clarityRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Clarity:</strong> ${currentComment.clarityRating !== null ? currentComment.clarityRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getIndividualDifficultyColor(currentComment.difficultyRating)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Difficulty:</strong> ${currentComment.difficultyRating !== null ? currentComment.difficultyRating : 'N/A'}/5
+        </span>
+        <span style="background-color: ${getWouldTakeAgainColor(currentComment.wouldTakeAgain)} !important; padding: 2px 4px; border-radius: 4px; margin-right: 4px;">
+          <strong>Would Take Again:</strong> ${wouldTakeAgainText}
+        </span>
+        <span style="background-color: ${getIndividualGradeColor(currentComment.grade)} !important; padding: 2px 4px; border-radius: 4px;">
+          <strong>Grade:</strong> ${currentComment.grade !== null ? currentComment.grade : 'N/A'}
+        </span>
+      `;
     }
     if (commentCounter) {
       commentCounter.textContent = `${currentCommentIndex + 1} of ${filteredComments.length}`;
