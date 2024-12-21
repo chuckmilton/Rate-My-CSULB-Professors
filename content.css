@@ -354,3 +354,7 @@
   display: block;
   pointer-events: none; /* Ensures the <a> captures the click */
 }
+
+.prof-card-department, .prof-card-main-info, .prof-card-tags, .prof-card-comments, .prof-card {
+  font-size: 16px !important;
+}

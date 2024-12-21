@@ -229,6 +229,7 @@ async function fetchProfessorDetails(name) {
                         wouldTakeAgain
                         grade
                         ratingTags
+                        date
                       }
                     }
                   }
@@ -350,6 +351,7 @@ async function fetchProfessorDetails(name) {
         ratingTags: rating.node.ratingTags,
         likes: rating.node.thumbsUpTotal,
         dislikes: rating.node.thumbsDownTotal,
+        date: rating.node.date,
       }));
 
       const profileLink = `https://www.ratemyprofessors.com/professor/${professor.legacyId}`;

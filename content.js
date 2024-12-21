@@ -167,7 +167,6 @@ fetch(chrome.runtime.getURL('excludedSubjects.json'))
   })
   .catch((error) => console.error('Failed to load excludedSubjects.json:', error));
 
-
 function isExcludedName(name) {
   const normalizedName = name.toLowerCase().trim();
   return excludedSubjects.has(normalizedName);
@@ -363,6 +362,17 @@ function createTooltip(details) {
   return tooltip;
 }
 
+// **New Function: Format Date to MM/DD/YYYY**
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  if (isNaN(date)) return 'N/A';
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day   = date.getDate().toString().padStart(2, '0');
+  const year  = date.getFullYear();
+  return `${month}/${day}/${year}`;
+}
+
 // Function to create the comments section with navigation and filtering
 function createCommentsSection(comments) {
   // If there are no comments, display a default message
@@ -377,7 +387,7 @@ function createCommentsSection(comments) {
   let filteredComments = comments.slice(); // Clone the comments array
   let currentCommentIndex = 0;
 
-  // Function to render the current comment with individual ratings
+  // Function to render the current comment with individual ratings and date
   const renderComment = (index) => {
     const comment = filteredComments[index];
 
@@ -386,11 +396,13 @@ function createCommentsSection(comments) {
                                 comment.wouldTakeAgain === 0 ? 'No' :
                                 'N/A';
 
+    const formattedDate = formatDate(comment.date);
+
     return `
       <div class="prof-card-review">
         <div class="prof-card-review-header">
           <div class="prof-card-review-course">${comment.class || 'N/A'}</div>
-          <div class="prof-card-review-date">👍${comment.likes || 0} / 👎${comment.dislikes || 0}</div>
+          <div class="prof-card-review-date">${formattedDate} | 👍${comment.likes || 0} / 👎${comment.dislikes || 0}</div>
         </div>
         <div class="prof-card-review-comment">${comment.comment || 'No comment'}</div>
         <div class="prof-card-review-individual-ratings">
@@ -573,10 +585,11 @@ function attachCommentNavigation(tooltip, comments) {
       courseContainer.textContent = currentComment.class || 'N/A';
     }
 
-    // Update likes and dislikes
+    // Update likes and dislikes with formatted date
     const likesDislikesContainer = tooltip.querySelector('.prof-card-comments .prof-card-review-date');
     if (likesDislikesContainer) {
-      likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+      const formattedDate = formatDate(currentComment.date);
+      likesDislikesContainer.textContent = `${formattedDate} | 👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
     }
 
     // Update individual ratings
@@ -655,7 +668,8 @@ function attachCommentNavigation(tooltip, comments) {
       courseContainer.textContent = currentComment.class || 'N/A';
     }
     if (likesDislikesContainer) {
-      likesDislikesContainer.textContent = `👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
+      const formattedDate = formatDate(currentComment.date);
+      likesDislikesContainer.textContent = `${formattedDate} | 👍${currentComment.likes || 0} / 👎${currentComment.dislikes || 0}`;
     }
     if (individualRatingsContainer) {
       // **Updated "Would Take Again" Display Logic for Individual Comments**
