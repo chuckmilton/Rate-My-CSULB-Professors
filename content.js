@@ -2,7 +2,7 @@ let currentTooltip = null; // Track the currently visible tooltip
 let emojis = {}; // Object to store the loaded emojis
 let nameMappings = {}; // Object to store the name mappings
 let excludedSubjects = new Set(); // Initialize an empty Set for excluded subjects
-const courseCodeRegex = /^[A-Z]{2,4}\s*\d{3}[A-Z]?$/i; // Regex to match course codes like CECS 491, CECS 491A, MATH 101, etc.
+const courseCodeRegex = /^([A-Z]{2,4}\s*)?\d{3}[A-Z]?$/i; // matches things like "CECS 491", "CECS 491A", "491A", or "327"
 
 // **Color Utility Functions**
 function getAverageRatingColor(rating) {
