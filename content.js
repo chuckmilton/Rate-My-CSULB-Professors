@@ -2,6 +2,7 @@ let currentTooltip = null; // Track the currently visible tooltip
 let emojis = {}; // Object to store the loaded emojis
 let nameMappings = {}; // Object to store the name mappings
 let excludedSubjects = new Set(); // Initialize an empty Set for excluded subjects
+const courseCodeRegex = /^[A-Z]{2,4}\s*\d{3}[A-Z]?$/i; // Regex to match course codes like CECS 491, CECS 491A, MATH 101, etc.
 
 // **Color Utility Functions**
 function getAverageRatingColor(rating) {
@@ -767,17 +768,18 @@ function processSchedulerSite() {
     // Extract professor names from nested spans
     const professorSpans = element.querySelectorAll('span');
     const professorNames = Array.from(professorSpans)
-      .map((span) => span.textContent.trim())
-      .filter((name) => {
-        // Valid name: must contain letters and not match excluded subjects or pure numbers
-        const isValidName = /^(?=.*[A-Za-z])[A-Za-z0-9\s,\-\.\(\)']+$/.test(name);
+      .map(span => span.textContent.trim())
+      .filter(name => {
+        // 1) Must contain at least one letter
+        const isValidName = /[A-Za-z]/.test(name);
+        // 2) Not excluded by your subject list
         const isNotExcluded = !isExcludedName(name);
-        return isValidName && isNotExcluded;
+        // 3) Not pure number or date/weekday
+        const isNotNumericOnly = !/^\d+$/.test(name);
+        // 4) Not a course code
+        const isNotCourseCode = !courseCodeRegex.test(name);
+        return isValidName && isNotExcluded && isNotNumericOnly && isNotCourseCode;
       });
-
-    if (professorNames.length === 0) {
-      return;
-    }
 
     element.dataset.badgeProcessed = 'true';
 
@@ -818,6 +820,9 @@ function processOtherSite() {
     }
 
     const professorName = element.textContent.trim();
+    if (courseCodeRegex.test(professorName)) {
+      return;
+    }
 
     // Skip invalid names containing "To be Announced" or "TBA"
     if (/^\s*(To be Announced|TBA)\s*$/i.test(professorName)) {
